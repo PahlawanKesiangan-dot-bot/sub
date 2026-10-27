@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <title>SubScope · Passive Recon</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="SubScope home">
+        <span class="brand-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 27 9.5v13L16 29 5 22.5v-13L16 3Z"/><path d="M10 16h12M16 10v12M11.5 11.5l9 9m0-9-9 9"/></svg></span>
+        <span><strong>SubScope</strong><small>PASSIVE RECON</small></span>
+      </a>
+      <div class="side-label">WORKSPACE</div>
+      <a class="nav-item active" href="#scanner"><span class="nav-icon">⌕</span> Subdomain finder <span class="nav-dot"></span></a>
+      <a class="nav-item muted" href="#results"><span class="nav-icon">▤</span> Results</a>
+      <div class="sidebar-bottom">
+        <div class="status-card"><span class="status-light" id="status-light"></span><div><b id="engine-state">Memeriksa engine...</b><small id="engine-detail">Subfinder backend</small></div></div>
+        <div class="sidebar-note">Gunakan hanya pada domain yang kamu miliki atau yang pengujiannya telah diizinkan.</div>
+        <div class="version">SUBSCOPE <span>v1.1.0</span></div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar"><div class="breadcrumb">Workspace <span>/</span> <b>Subdomain finder</b></div><div class="top-right"><span class="passive-pill"><i></i> PASSIVE MODE</span><span class="avatar">SS</span>{% if auth_enabled %}<form class="logout-form" action="{{ url_for('logout') }}" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="logout-button" type="submit" title="Keluar dari sesi">Log out ↗</button></form>{% endif %}</div></header>
+      <section class="hero" id="scanner">
+        <div class="eyebrow"><span class="eyebrow-line"></span> ATTACK SURFACE DISCOVERY</div>
+        <h1>Know your <span>subdomains.</span></h1>
+        <p class="hero-copy">Temukan subdomain dari sumber publik menggunakan Subfinder. Ringkas, terukur, dan tanpa fitur eksploitasi.</p>
+        <div class="scan-panel">
+          <div class="panel-title-row"><div><div class="panel-title">Target domain</div><div class="panel-subtitle">Masukkan root domain untuk memulai pencarian pasif.</div></div><span class="tiny-tag"><span class="tiny-dot"></span> READY</span></div>
+          <form id="scan-form" autocomplete="off">
+            <label class="sr-only" for="domain-input">Domain target</label>
+            <div class="input-wrap"><span class="input-prefix">⌘</span><input id="domain-input" name="domain" type="text" placeholder="example.com" maxlength="253" spellcheck="false" required><button id="scan-button" type="submit"><span class="btn-icon">⌕</span> Find subdomains <span class="button-arrow">↗</span></button></div>
+            <div class="input-hint"><span>↳</span> Domain saja, tanpa https:// atau path</div>
+          </form>
+          <div class="scan-footer"><div><span class="footer-check">✓</span> Passive sources only</div><div><span class="footer-check">✓</span> No port scanning</div><div><span class="footer-check">✓</span> No exploitation</div></div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-label">SUBDOMAINS FOUND <span class="stat-symbol">⌘</span></div><div class="stat-value" id="stat-count">—</div><div class="stat-foot">Unique hostnames in this run</div></div>
+          <div class="stat-card"><div class="stat-label">SCAN DURATION <span class="stat-symbol">◷</span></div><div class="stat-value"><span id="stat-time">—</span><small id="time-unit"></small></div><div class="stat-foot">Total enumeration time</div></div>
+          <div class="stat-card"><div class="stat-label">ENUMERATION MODE <span class="stat-symbol">◎</span></div><div class="stat-value mode-value">Passive<span class="mode-indicator"></span></div><div class="stat-foot">Public data sources</div></div>
+        </div>
+      </section>
+
+      <section class="results-section" id="results">
+        <div class="results-heading"><div><div class="section-kicker">DISCOVERY OUTPUT</div><h2>Enumeration results</h2><p id="results-caption">Hasil pencarian akan muncul di sini.</p></div><div class="result-actions"><button id="copy-button" class="secondary-button" disabled>▣ <span>Copy all</span></button><button id="export-button" class="secondary-button export-button" disabled>↓ <span>Export CSV</span></button></div></div>
+        <div class="results-box">
+          <div class="table-toolbar"><div class="table-title"><span class="mini-pulse"></span> DISCOVERED HOSTS <span class="count-chip" id="result-count">0</span></div><div class="search-wrap"><span>⌕</span><input id="filter-input" placeholder="Filter results..." type="search" disabled></div></div>
+          <div id="empty-state" class="empty-state"><div class="empty-icon"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="18"/><path d="M7 24h34M24 6c5 5 8 11 8 18s-3 13-8 18c-5-5-8-11-8-18s3-13 8-18Z"/></svg></div><h3>Nothing discovered yet</h3><p>Masukkan domain di atas untuk melihat subdomain yang ditemukan dari sumber pasif.</p></div>
+          <div id="loading-state" class="loading-state" hidden><div class="spinner"></div><h3>Collecting public signals</h3><p>Subfinder sedang menggabungkan hasil dari sumber pasif. Ini bisa memerlukan beberapa saat.</p><div class="loading-track"><span></span></div></div>
+          <div id="error-state" class="error-state" hidden><div class="error-icon">!</div><div><b>Scan tidak dapat diselesaikan</b><p id="error-text"></p></div></div>
+          <div class="table-scroll" id="table-scroll" hidden><table><thead><tr><th style="width:72px">NO.</th><th>SUBDOMAIN</th><th style="width:160px">PARENT DOMAIN</th><th style="width:116px">TYPE</th><th style="width:78px">ACTION</th></tr></thead><tbody id="results-body"></tbody></table><div class="table-bottom"><span id="visible-count">0 results</span><span>Sorted alphabetically <b>↑</b></span></div></div>
+        </div>
+        <div class="disclaimer"><span class="disclaimer-icon">ⓘ</span><p><b>Coverage note</b> Hasil bergantung pada sumber pasif, batas penggunaan layanan pihak ketiga, dan API key yang dikonfigurasi. Tidak ditemukannya subdomain bukan bukti bahwa domain tidak memilikinya.</p></div>
+        <footer>Built for responsible security research <span>•</span> Deployment-ready · passive sources only</footer>
+      </section>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

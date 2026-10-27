@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <title>Masuk · SubScope</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+</head>
+<body>
+  <main class="login-shell">
+    <div class="glow glow-one"></div><div class="glow glow-two"></div>
+    <section class="login-card" aria-labelledby="login-title">
+      <a class="brand" href="/" aria-label="SubScope">
+        <span class="brand-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3 27 9.5v13L16 29 5 22.5v-13L16 3Z"/><path d="M10 16h12M16 10v12M11.5 11.5l9 9m0-9-9 9"/></svg></span>
+        <span><strong>SubScope</strong><small>PASSIVE RECON</small></span>
+      </a>
+      <div class="eyebrow"><span></span> RESTRICTED WORKSPACE</div>
+      <h1 id="login-title">Welcome <em>back.</em></h1>
+      <p class="subcopy">Masuk untuk membuka dashboard enumerasi subdomain pasif.</p>
+      {% if error %}<div class="error-message" role="alert">{{ error }}</div>{% endif %}
+      <form method="post" action="{{ url_for('login') }}" autocomplete="on">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" autocomplete="username" placeholder="Masukkan username" required maxlength="128" autofocus>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Masukkan password" required maxlength="256">
+        <button type="submit">Masuk ke dashboard <span>↗</span></button>
+      </form>
+      <div class="safe-note"><span>◇</span><p>Gunakan alat ini hanya untuk domain yang kamu miliki atau yang telah memberi izin pengujian.</p></div>
+      <footer><span class="status-dot"></span> SESSION PROTECTED <span class="foot-sep">·</span> SUBSCOPE v1.1.0</footer>
+    </section>
+  </main>
+</body>
+</html>
